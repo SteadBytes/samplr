@@ -1,6 +1,6 @@
 use rand::Rng;
 
-pub fn sample<I, T>(input: I, n: u32) -> Vec<T>
+pub fn reservoir_sample<I, T>(input: I, n: u32) -> Vec<T>
 where
     I: IntoIterator<Item = T>,
 {
@@ -24,8 +24,48 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn sample_is_pop_when_pop_size_less_than_sample_size() {
+        // Population size of 10
+        let population: Vec<u32> = (0..10).collect();
+
+        // 20 element sample
+        let sample = reservoir_sample(population.clone(), 20);
+
+        assert_eq!(population, sample);
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "statistical_tests")]
+mod statistical_tests {
+    use super::*;
     use assert_approx_eq::assert_approx_eq;
     use rand_distr::{Distribution, Exp};
+
+    /// Statistical test using the Maximum Likelihood Estimator of the sample distribution to test
+    /// that the sample is uniformly distribution across the population.
+    /// https://steadbytes.com/blog/reservoir-sampling/#how-can-a-reservoir-sampling-implementation-be-practically-tested-for-correctness
+    #[test]
+    fn sample_distribution_mle() {
+        let n: u32 = 1000;
+        let pop_size = (n * 1000) as usize;
+        let rate = 0.1;
+        let tolerance = 0.1;
+        let rounds = 5;
+
+        for _ in 0..rounds {
+            let population = generate_population(rate, pop_size);
+
+            let sample = reservoir_sample(population, n);
+
+            assert_eq!(sample.len(), n as usize);
+
+            let rate_mle: f64 = sample.len() as f64 / sample.into_iter().sum::<f64>();
+            assert_approx_eq!(rate_mle, rate, tolerance)
+        }
+    }
 
     fn generate_population(rate: f64, size: usize) -> Vec<f64> {
         let rng = rand::thread_rng();
@@ -36,23 +76,5 @@ mod tests {
             v
         };
         population
-    }
-
-    #[test]
-    fn sample_distribution() {
-        let n: u32 = 1000;
-        let pop_size = (n * 1000) as usize;
-        let rate = 0.1;
-        let tolerance = 0.1;
-        let rounds = 5;
-
-        for _ in 0..rounds {
-            let population = generate_population(rate, pop_size);
-
-            let sample = sample(population, n);
-
-            let rate_mle: f64 = sample.len() as f64 / sample.into_iter().sum::<f64>();
-            assert_approx_eq!(rate_mle, rate, tolerance)
-        }
     }
 }
