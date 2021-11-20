@@ -35,9 +35,17 @@ fn main() {
                 .short("n")
                 .takes_value(true)
                 .default_value("10"),
+        ).arg(
+            Arg::with_name("seed")
+                .help("RNG seed")
+                .long("seed")
+                .takes_value(true)
         );
     let matches = app.get_matches();
     let n = value_t!(matches, "sample-size", u32).expect("invalid sample-size");
+    let seed = matches
+        .value_of("seed")
+        .map(|x| x.parse().expect("invalid seed"));
 
     // TODO: Extract all of this and test
     let inputs = {
@@ -65,7 +73,7 @@ fn main() {
         };
         io::BufReader::new(r).lines().map(|l| l.unwrap())
     });
-    let sampled = reservoir_sample(lines, n);
+    let sampled = reservoir_sample(lines, n, seed);
     for l in sampled {
         println!("{}", l);
     }

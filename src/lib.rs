@@ -1,12 +1,18 @@
-use rand::Rng;
+use rand::{rngs::StdRng, Rng, SeedableRng};
 
-pub fn reservoir_sample<I, T>(input: I, n: u32) -> Vec<T>
+/// Uniformly sample `n` items from `input` via [Reservoir Sampling](https://steadbytes.com/blog/reservoir-sampling/#algorithm-l-geometric-jumps).
+///
+// If not `None`, seed the RNG with `seed`.
+pub fn reservoir_sample<I, T>(input: I, n: u32, seed: Option<u64>) -> Vec<T>
 where
     I: IntoIterator<Item = T>,
 {
     let mut iter = input.into_iter();
     let mut reservoir: Vec<T> = iter.by_ref().take(n as usize).collect();
-    let mut rng = rand::thread_rng();
+    let mut rng = match seed {
+        Some(seed) => StdRng::seed_from_u64(seed),
+        None => StdRng::from_rng(rand::thread_rng()).unwrap(),
+    };
     let mut w: f64 = (rng.gen::<f64>().ln() / n as f64).exp();
 
     loop {
@@ -31,7 +37,7 @@ mod tests {
         let population: Vec<u32> = (0..10).collect();
 
         // 20 element sample
-        let sample = reservoir_sample(population.clone(), 20);
+        let sample = reservoir_sample(population.clone(), 20, None);
 
         assert_eq!(population, sample);
     }
@@ -58,7 +64,7 @@ mod statistical_tests {
         for _ in 0..rounds {
             let population = generate_population(rate, pop_size);
 
-            let sample = reservoir_sample(population, n);
+            let sample = reservoir_sample(population, n, None);
 
             assert_eq!(sample.len(), n as usize);
 
