@@ -41,6 +41,15 @@ mod tests {
 
         assert_eq!(population, sample);
     }
+
+    #[test]
+    fn seed_deterministic_samples() {
+        let population: Vec<u32> = (0..100).collect();
+        // It is _extremely_ unlikely that this would generate 100 identical samples without a correctly functioning seed...
+        let mut samples = (0..100).map(|_| reservoir_sample(&population, 20, Some(1234)));
+        let first = samples.next().unwrap();
+        samples.for_each(|sample| assert_eq!(first, sample));
+    }
 }
 
 #[cfg(test)]

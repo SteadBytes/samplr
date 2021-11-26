@@ -3,4 +3,3 @@ test: ## Run tests with Cargo (default features)
 
 test-all: ## Run all tests
 	cargo test --all-features --release
-	./tests/seed.sh
