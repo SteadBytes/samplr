@@ -2,7 +2,7 @@
 extern crate clap;
 
 use clap::{crate_version, App, Arg, ArgMatches, OsValues};
-use sample::reservoir_sample;
+use samplr::reservoir_sample;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
