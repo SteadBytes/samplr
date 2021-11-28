@@ -1,6 +1,14 @@
 [package]
 name = "samplr"
 version = "0.1.0"
+authors = ["Ben Steadman <steadmanben1@gmail.com>"]
+description = "CLI tool to randomly sample data" 
+homepage = "https://github.com/SteadBytes/samplr"
+repository = "https://github.com/SteadBytes/samplr"
+readme = "README.md"
+license = "MIT"
+keywords = ["cli", "sampling", "statistics"]
+categories = ["command-line-utilities", "mathematics"]
 edition = "2021"
 
 [features]
