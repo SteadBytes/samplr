@@ -1,1 +1,5 @@
+# Cargo build output
 /target
+
+# Local files for testing 
+/data
