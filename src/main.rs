@@ -68,7 +68,7 @@ impl Sample {
 }
 
 fn build_app() -> App<'static, 'static> {
-    App::new("sample")
+    App::new("samplr")
         .version(crate_version!())
         .about("Randomly sample lines")
         .arg(
